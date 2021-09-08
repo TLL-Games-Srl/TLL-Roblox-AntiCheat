@@ -1,0 +1,28 @@
+local GroupId = 1234567 --REPLACE 1234567 WITH YOUR GROUP ID
+local MinimumRankToUseCommand = 255 --REPLACE 255 WITH THE MINIMUM RANK ID TO USE THE !WARN COMMAND
+
+game.Players.PlayerAdded:Connect(function(Player)
+	Player.CharacterAdded:Connect(function(Character)
+		local WarningGUI = script.WarningGUI:Clone()
+		WarningGUI.Parent = Character.Head
+	end)
+	
+	Player.Chatted:Connect(function(Message)
+		local SplitMessage = Message:split(" ")
+		if SplitMessage[1] == "!warn" and Player:GetRankInGroup(GroupId) >= MinimumRankToUseCommand then
+			local NameOfPlayerToWarn = SplitMessage[2]
+			local PlayerToWarn = game.Players:FindFirstChild(NameOfPlayerToWarn)
+			local Reason = Message:split(NameOfPlayerToWarn)[2]
+			
+			local WarningGUI = PlayerToWarn.Character.Head.WarningGUI
+			local CurrentWarnings = WarningGUI.Warnings
+			
+			CurrentWarnings.Value = CurrentWarnings.Value + 1
+			WarningGUI.WarningLabel.Text = "W" .. CurrentWarnings.Value .. " - " .. Reason
+			
+			if CurrentWarnings.Value >= 3 then
+				PlayerToWarn:Kick("You've reached the maximum number of warnings and have been kicked from the server.")
+			end
+		end
+	end)
+end)
