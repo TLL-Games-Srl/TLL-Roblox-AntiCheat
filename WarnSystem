@@ -26,3 +26,42 @@ game.Players.PlayerAdded:Connect(function(Player)
 		end
 	end)
 end)
+
+--FOR CREATE THE GROUP ID
+local physicsService = game:GetService("PhysicsService")
+ 
+-- returns a valid group id (int) or nil
+function getGroupId(name)
+	-- GetCollisionGroupId will throw if it does not exist
+	local ok, groupId = pcall(physicsService.GetCollisionGroupId, physicsService, name)
+	return ok and groupId or nil
+end
+ 
+-- returns a valid group id (int) or nil
+function getOrCreateGroupId(name)
+	local ok, groupId = pcall(physicsService.GetCollisionGroupId, physicsService, name)
+	if not ok then
+		-- Create may fail if we have hit the maximum of 32 different groups
+		ok, groupId = pcall(physicsService.CreateCollisionGroup, physicsService, name)
+	end
+	return ok and groupId or nil
+end
+ 
+-- sets the specified part's collision group to the group with 
+-- given group id
+function setPartCollisionGroup(part, name)
+	physicsService:SetPartCollisionGroup(part, name)
+end
+ 
+-- returns the id of part's collision
+function getPartGroupId(part)
+	return part.CollisionGroupId
+end
+ 
+	
+print("Get 'Test' Group:", getGroupId("Test")) -- prints nil
+print("Get/Create 'Test' Group:", getOrCreateGroupId("Test")) -- prints 1
+print("Get Id of 'Test' Group:", getGroupId("Test")) -- prints 1
+print("Setting Part1's collision group...")
+setPartCollisionGroup(game.Workspace.Part1, "Test")
+print("Part1's Collision Group Id:", getPartGroupId(game.Workspace.Part1)) -- prints 1
